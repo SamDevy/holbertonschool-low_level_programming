@@ -10,6 +10,8 @@
 int main(void)
 {
 	const char *msg = "with proper grammar, but the outcome is a piece of art,\n";
+
 	printf("%s", msg);
+
 	return (0);
 }
