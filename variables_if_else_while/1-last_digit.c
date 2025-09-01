@@ -13,10 +13,9 @@ if its = 0 it would says 0
 int main(void)
 {
         int n;
-
+        int a = n % 10;
         srand(time(0));
         n = rand() - RAND_MAX / 2;
-        int a = n % 10;
         if (a > 5)
         {
                 printf("Last digit of %d is %d and is greater than 5\n", n, a);
