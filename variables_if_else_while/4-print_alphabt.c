@@ -1,24 +1,23 @@
-#include <stdio.h> 
+#include <stdio.h>
 
-/*
- * Program: Print lowercase letters a-z
- * Behavior: Skips 'e' and 'q' characters
- * Output: One line of letters without 'e' and 'q'
- * Usage: Compile and run to see the sequence
- * Note: Uses putchar in a simple while loop
- * Exits with status code 0.
+/**
+ * main - Prints lowercase letters a-z except 'e' and 'q'
+ *
+ * Program prints all lowercase letters except 'e' and 'q' in one line.
+ * Uses a while loop and putchar for output.
+ * Return: Always 0 (Success)
  */
-int main(void) 
+int main(void)
 {
-char ch = 'a';
+	char ch = 'a';
 
-while (ch <= 'z') {
-    if (ch != 'q' && ch != 'e')
-        putchar(ch);
-    ch++;
+	while (ch <= 'z')
+	{
+		if (ch != 'q' && ch != 'e')
+			putchar(ch);
+		ch++;
+	}
+	putchar('\n');
+
+	return (0);
 }
-putchar('\n');
-return 0; 
-
-}
-
