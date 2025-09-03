@@ -8,7 +8,9 @@
  * Then, it prints all lowercase letters, followed by all uppercase letters.
  * Finally, it prints a newline character at the end.
  * Only the putchar function is used for output.
+ * Return: Always 0 (Success)
  */
+
 int main(void)
 {
 	char small_letters[27];
