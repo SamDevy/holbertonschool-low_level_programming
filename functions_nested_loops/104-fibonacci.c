@@ -1,3 +1,5 @@
+/* 104-fibonacci.c */
+
 #include <stdio.h>
 
 /**
@@ -7,17 +9,33 @@
  */
 int main(void)
 {
-	unsigned long a = 1, b = 2, next;
+	unsigned long a1 = 1, a2 = 0, b1 = 2, b2 = 0;
+	unsigned long next1, next2;
 	int i;
 
-	printf("%lu, %lu", a, b);
+	printf("%lu, %lu", a1, b1);
 
 	for (i = 2; i < 98; i++)
 	{
-		next = a + b;
-		printf(", %lu", next);
-		a = b;
-		b = next;
+		next1 = a1 + b1;
+		next2 = a2 + b2;
+
+		if (next1 < a1) /* overflow happened */
+			next2++;
+
+		if (next2 > 0)
+		{
+			printf(", %lu%018lu", next2, next1);
+		}
+		else
+		{
+			printf(", %lu", next1);
+		}
+
+		a1 = b1;
+		a2 = b2;
+		b1 = next1;
+		b2 = next2;
 	}
 	printf("\n");
 	return (0);
