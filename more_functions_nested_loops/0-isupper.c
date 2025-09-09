@@ -8,9 +8,8 @@
  */
 int _isupper(int c)
 {
-    /* Check if c is between 'A' and 'Z' in ASCII */
+    /* Return 1 if c is between 'A' and 'Z', else 0 */
     if (c >= 'A' && c <= 'Z')
         return (1);
-    else
-        return (0);
+    return (0);
 }
