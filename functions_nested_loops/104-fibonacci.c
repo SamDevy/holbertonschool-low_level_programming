@@ -1,5 +1,3 @@
-/* 104-fibonacci.c */
-
 #include <stdio.h>
 
 /**
