@@ -3,10 +3,12 @@
 #include <stdio.h>
 
 /**
- * main - Finds and prints the sum of even Fibonacci numbers not exceeding 4,000,000.
+ * main - Finds and prints the sum of even Fibonacci numbers
+ * not exceeding 4,000,000.
  *
  * Return: Always 0.
  */
+
 int main(void)
 {
 	unsigned long a = 1, b = 2, next, sum = 0;
