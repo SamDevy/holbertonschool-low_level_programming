@@ -4,6 +4,6 @@
 #define MAIN_H
 
 int _putchar(char c);
-int print_last_digit(int n);
+int _isalpha(int c);
 
 #endif /* MAIN_H */
