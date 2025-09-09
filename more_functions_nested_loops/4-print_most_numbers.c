@@ -1,10 +1,12 @@
 #include "main.h"
 
 /**
- * print_most_numbers - Prints numbers from 0 to 9 except 2 and 4, followed by a new line.
+ * print_most_numbers - Prints numbers from 0 to 9 except 2 and 4,
+ * followed by a new line.
  *
  * Return: Nothing.
  */
+
 void print_most_numbers(void)
 {
 	int i;
