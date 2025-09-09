@@ -11,6 +11,7 @@ int main(void)
 {
 	unsigned long a1 = 1, a2 = 0, b1 = 2, b2 = 0;
 	unsigned long next1, next2;
+	unsigned long limit = 10000000000;
 	int i;
 
 	printf("%lu, %lu", a1, b1);
@@ -20,17 +21,16 @@ int main(void)
 		next1 = a1 + b1;
 		next2 = a2 + b2;
 
-		if (next1 < a1) /* overflow happened */
+		if (next1 >= limit)
+		{
+			next1 -= limit;
 			next2++;
+		}
 
 		if (next2 > 0)
-		{
-			printf(", %lu%018lu", next2, next1);
-		}
+			printf(", %lu%010lu", next2, next1);
 		else
-		{
 			printf(", %lu", next1);
-		}
 
 		a1 = b1;
 		a2 = b2;
