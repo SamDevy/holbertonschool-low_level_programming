@@ -1,6 +1,34 @@
 #include "main.h"
 
 /**
+ * print_num - Prints a number with proper spacing for times table.
+ * @n: The number to print.
+ *
+ * Return: Nothing.
+ */
+void print_num(int n)
+{
+	if (n < 10)
+	{
+		_putchar(' ');
+		_putchar(' ');
+		_putchar(n + '0');
+	}
+	else if (n < 100)
+	{
+		_putchar(' ');
+		_putchar((n / 10) + '0');
+		_putchar((n % 10) + '0');
+	}
+	else
+	{
+		_putchar((n / 100) + '0');
+		_putchar(((n / 10) % 10) + '0');
+		_putchar((n % 10) + '0');
+	}
+}
+
+/**
  * print_times_table - Prints the n times table, starting with 0.
  * @n: The number of the times table to print (0 <= n <= 15).
  *
@@ -8,47 +36,24 @@
  */
 void print_times_table(int n)
 {
-	int i = 0, j, p;
+	int i, j;
 
 	if (n < 0 || n > 15)
 		return;
 
-	while (i <= n)
+	for (i = 0; i <= n; i++)
 	{
-		j = 0;
-		while (j <= n)
+		for (j = 0; j <= n; j++)
 		{
-			p = i * j;
 			if (j == 0)
-			{
 				_putchar('0');
-			}
 			else
 			{
 				_putchar(',');
 				_putchar(' ');
-				if (p < 10)
-				{
-					_putchar(' ');
-					_putchar(' ');
-					_putchar(p + '0');
-				}
-				else if (p < 100)
-				{
-					_putchar(' ');
-					_putchar((p / 10) + '0');
-					_putchar((p % 10) + '0');
-				}
-				else
-				{
-					_putchar((p / 100) + '0');
-					_putchar(((p / 10) % 10) + '0');
-					_putchar((p % 10) + '0');
-				}
+				print_num(i * j);
 			}
-			j++;
 		}
 		_putchar('\n');
-		i++;
 	}
 }
