@@ -4,6 +4,6 @@
 #define MAIN_H
 
 int _putchar(char c);
-int _abs(int);
+int print_sign(int n);
 
 #endif /* MAIN_H */
