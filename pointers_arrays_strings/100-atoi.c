@@ -7,20 +7,17 @@
  */
 int _atoi(char *s)
 {
-	int i = 0, sign = 1, result = 0, found = 0;
+	int i = 0, sign = 1, result = 0, found = 0, minus_count = 0;
 
-	/* Skip non-digit characters and track the last sign */
-	while (s[i])
+	/* Count minus signs before the first digit */
+	while (s[i] && (s[i] < '0' || s[i] > '9'))
 	{
-		if ((s[i] == '-' || s[i] == '+') &&
-		    (s[i + 1] >= '0' && s[i + 1] <= '9'))
-		{
-			sign = (s[i] == '-') ? -1 : 1;
-		}
-		if (s[i] >= '0' && s[i] <= '9')
-			break;
+		if (s[i] == '-')
+			minus_count++;
 		i++;
 	}
+	if (minus_count % 2)
+		sign = -1;
 	/* Build the number */
 	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
 	{
