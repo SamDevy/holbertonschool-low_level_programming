@@ -8,7 +8,8 @@
  */
 void puts_half(char *str)
 {
-	int len = 0, i, start;
+	int len = 0;
+	int start;
 
 	/* Calculate the length of the string */
 	while (str[len] != '\0')
@@ -20,6 +21,11 @@ void puts_half(char *str)
 	else
 		start = (len + 1) / 2;
 
-	/* Print the second half using printf and %s */
-	printf("%s\n", str + start);
+	/* Print from start to end using printf */
+	while (start < len)
+	{
+		printf("%c", str[start]);
+		start++;
+	}
+	printf("\n");
 }
