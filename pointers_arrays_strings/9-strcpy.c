@@ -1,4 +1,4 @@
-/* 9-strcpy.c - Way 1 */
+/* 9-strcpy.c */
 /**
  * _strcpy - Copies the string pointed to by src to dest
  * @dest: The destination buffer
