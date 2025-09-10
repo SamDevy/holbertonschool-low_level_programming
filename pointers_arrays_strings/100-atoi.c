@@ -9,32 +9,46 @@ int _atoi(char *s)
 {
 	int i = 0;
 	int sign = 1;
-	unsigned int result = 0;
+	int result = 0;
+	int started = 0;
 
-	/* Handle sign before first digit */
-	while (s[i] && (s[i] < '0' || s[i] > '9'))
+	/* Process all characters in the string */
+	while (s[i])
 	{
-		if (s[i] == '-')
+		/* Update sign for each '-' before digits */
+		if (s[i] == '-' && !started)
 			sign *= -1;
-		else if (s[i] == '+')
+		else if (s[i] == '+' && !started)
 			;
-		i++;
-	}
-	/* Build the number and check for overflow */
-	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
-	{
-		if (result > (2147483647 - (s[i] - '0')) / 10)
+		else if (s[i] >= '0' && s[i] <= '9')
 		{
-			if (sign == 1)
-				return (2147483647);
+			/* Start building the number as negative to avoid overflow */
+			if (!started)
+			{
+				started = 1;
+				result = -(s[i] - '0');
+			}
 			else
-				return (-2147483648);
+			{
+				/* Check for overflow before multiplying and subtracting */
+				if (result < (-2147483647 / 10))
+					return (sign == 1 ? 2147483647 : -2147483648);
+				result = result * 10 - (s[i] - '0');
+			}
 		}
-		result = result * 10 + (s[i] - '0');
+		else if (started)
+			break;
 		i++;
 	}
+	if (!started)
+		return (0);
+	/* If sign is positive, flip result to positive */
 	if (sign == 1)
-		return ((int)result);
-	else
-		return ((int)(-result));
+	{
+		/* Handle INT_MIN edge case */
+		if (result == -2147483648)
+			return (2147483647);
+		return (-result);
+	}
+	return (result);
 }
