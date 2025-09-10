@@ -7,34 +7,30 @@
  */
 int _atoi(char *s)
 {
-	int i = 0, sign = 1, result = 0, started = 0;
+	int i = 0, sign = 1, result = 0, found = 0;
 
-	/* Skip non-digit and non-sign characters */
-	while (s[i] && (s[i] < '0' || s[i] > '9'))
+	/* Skip non-digit characters and track the last sign */
+	while (s[i])
 	{
-		if (s[i] == '-')
-			sign *= -1;
-		else if (s[i] == '+')
-			;
+		if ((s[i] == '-' || s[i] == '+') &&
+		    (s[i + 1] >= '0' && s[i + 1] <= '9'))
+		{
+			sign = (s[i] == '-') ? -1 : 1;
+		}
+		if (s[i] >= '0' && s[i] <= '9')
+			break;
 		i++;
 	}
 	/* Build the number */
 	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
 	{
-		if (!started)
-		{
-			started = 1;
-			result = s[i] - '0';
-		}
-		else
-		{
-			if (result > (2147483647 - (s[i] - '0')) / 10)
-				return (sign == 1 ? 2147483647 : -2147483648);
-			result = result * 10 + (s[i] - '0');
-		}
+		found = 1;
+		if (result > (2147483647 - (s[i] - '0')) / 10)
+			return (sign == 1 ? 2147483647 : -2147483648);
+		result = result * 10 + (s[i] - '0');
 		i++;
 	}
-	if (!started)
+	if (!found)
 		return (0);
 	return (result * sign);
 }
