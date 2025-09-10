@@ -1,4 +1,6 @@
 /* 8-print_array.c - Way 1 */
+#include <stdio.h>
+
 /**
  * print_array - Prints n elements of an array of integers
  * @a: The array of integers
