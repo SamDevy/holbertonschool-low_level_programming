@@ -23,6 +23,7 @@ int _atoi(char *s)
 	/* Build the number and check for overflow */
 	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
 	{
+		/* Check for overflow before multiplying and adding */
 		if (result > (2147483647 - (s[i] - '0')) / 10)
 		{
 			if (sign == 1)
@@ -33,8 +34,8 @@ int _atoi(char *s)
 		result = result * 10 + (s[i] - '0');
 		i++;
 	}
+	/* Return the result with the correct sign */
 	if (sign == 1)
 		return ((int)result);
-	else
-		return ((int)(-result));
+	return ((int)(-result));
 }
