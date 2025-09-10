@@ -11,28 +11,34 @@ int _atoi(char *s)
 	int sign = 1;
 	int result = 0;
 	int found_digit = 0;
+	int digit;
+	int INT_MAX = 2147483647;
+	int INT_MIN = -2147483648;
 
 	/* Process all characters in the string */
 	while (s[i])
 	{
-		/* Update sign for each '-' before digits */
 		if (s[i] == '-')
 			sign *= -1;
-		/* Ignore '+' signs */
 		else if (s[i] == '+')
 			;
-		/* If digit found, build the number */
 		else if (s[i] >= '0' && s[i] <= '9')
 		{
 			found_digit = 1;
-			result = result * 10 + (s[i] - '0');
+			digit = s[i] - '0';
+
+			/* Check for overflow before multiplying and adding */
+			if (sign == 1 && (result > (INT_MAX - digit) / 10))
+				return (INT_MAX);
+			if (sign == -1 && (result > (-(INT_MIN + digit)) / 10))
+				return (INT_MIN);
+
+			result = result * 10 + digit;
 		}
-		/* If digits have started and current char is not a digit, break */
 		else if (found_digit)
 			break;
 		i++;
 	}
-	/* If no digits found, return 0 */
 	if (!found_digit)
 		return (0);
 	return (result * sign);
