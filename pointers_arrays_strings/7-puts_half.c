@@ -1,15 +1,16 @@
-/* 7-puts_half.c - Way 1 */
-#include <stdio.h>
-
+/* 7-puts_half.c */
 /**
  * puts_half - Prints the second half of a string, followed by a new line
  * @str: The string to print
  *
  * Return: void
  */
+#include <stdio.h>
+
 void puts_half(char *str)
 {
-	int len = 0, i, start;
+	int len = 0;
+	int i, start;
 
 	/* Calculate the length of the string */
 	while (str[len] != '\0')
