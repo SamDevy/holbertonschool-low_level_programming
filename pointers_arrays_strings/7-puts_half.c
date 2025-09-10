@@ -21,10 +21,10 @@ void puts_half(char *str)
 	else
 		start = (len + 1) / 2;
 
-	/* Print from start to end */
+	/* Print from start to end using printf */
 	for (i = start; i < len; i++)
 	{
-		putchar(str[i]);
+		printf("%c", str[i]);
 	}
-	putchar('\n');
+	printf("\n");
 }
