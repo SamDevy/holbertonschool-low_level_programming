@@ -9,23 +9,23 @@
 void puts_half(char *str)
 {
 	int len = 0;
-	int start;
+	int i;
 
-	/* Calculate the length of the string */
+	/* Find the length of the string */
 	while (str[len] != '\0')
 		len++;
 
-	/* Calculate the starting index for the second half */
+	/* If odd, skip the middle character */
 	if (len % 2 == 0)
-		start = len / 2;
+		i = len / 2;
 	else
-		start = (len + 1) / 2;
+		i = (len - 1) / 2 + 1;
 
-	/* Print from start to end using printf */
-	while (start < len)
+	/* Print the second half */
+	while (i < len)
 	{
-		printf("%c", str[start]);
-		start++;
+		putchar(str[i]);
+		i++;
 	}
-	printf("\n");
+	putchar('\n');
 }
