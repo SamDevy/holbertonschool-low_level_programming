@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <unistd.h>
 
 /**
  * puts_half - Prints the second half of a string, followed by a new line
@@ -11,21 +11,23 @@ void puts_half(char *str)
 	int len = 0;
 	int i;
 
-	/* Find the length of the string */
+	/* Calculate the length of the string */
 	while (str[len] != '\0')
 		len++;
 
-	/* If odd, skip the middle character */
+	/* Determine the starting index of the second half */
 	if (len % 2 == 0)
 		i = len / 2;
 	else
 		i = (len - 1) / 2 + 1;
 
-	/* Print the second half */
+	/* Write each character to stdout */
 	while (i < len)
 	{
-		putchar(str[i]);
+		write(1, &str[i], 1);
 		i++;
 	}
-	putchar('\n');
+
+	/* Write newline */
+	write(1, "\n", 1);
 }
