@@ -3,9 +3,8 @@
 /**
  * main - Entry point
  *
- * Description: Sets the value of a[2] = 98 without
- *              directly using the array variable 'a'.
- *              Only one statement is allowed.
+ * 
+ * the code is running well
  *
  * Return: Always 0 (Success)
  */
