@@ -1,20 +1,16 @@
-1. Silence is argument carried out by other means
-mandatory
-Write a program that prints the number of arguments passed into it.
+#include <stdio.h>
 
-Your program should print a number, followed by a new line
-julien@ubuntu:~/argc, argv$ gcc -Wall -pedantic -Werror -Wextra -std=gnu89 1-args.c -o nargs
-julien@ubuntu:~/argc, argv$ ./nargs 
-0
-julien@ubuntu:~/argc, argv$ ./nargs hello
-1
-julien@ubuntu:~/argc, argv$ ./nargs "hello, world"
-1
-julien@ubuntu:~/argc, argv$ ./nargs hello, world
-2
-julien@ubuntu:~/argc, argv$ 
-Repo:
+/**
+ * main - prints the number of arguments passed into it
+ * @argc: number of arguments
+ * @argv: array of arguments (unused)
+ *
+ * Return: 0 (always success)
+ */
+int main(int argc, char *argv[])
+{
+	(void)argv; /* unused parameter */
 
-GitHub repository: holbertonschool-low_level_programming
-Directory: argc_argv
-File: 1-args.c
+	printf("%d\n", argc - 1);
+	return (0);
+}
