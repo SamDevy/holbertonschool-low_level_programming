@@ -1,12 +1,12 @@
 /**
  * _memset - fills memory with a constant byte
- * @s: pointer to the memory area to fill
- * @b: the byte to fill the memory with
- * @n: number of bytes to fill
+ * @s: memory area
+ * @b: constant byte
+ * @n: number of bytes
  *
- * Return: pointer to the memory area s
- * Return Always 0
+ * Return: pointer to memory area s
  */
+
 
 /* Way 1: Using array indexing */
 char *_memset(char *s, char b, unsigned int n)
