@@ -1,64 +1,74 @@
 /* 100-argstostr.c */
 /**
- * argstostr - Concatenates all program arguments into a single string
+ * _arg_len - Returns length of a single C-string
+ * @s: string pointer (may be NULL)
+ *
+ * Return: length (0 if s is NULL)
+ */
+static int _arg_len(char *s)
+{
+	int n = 0;
+
+	if (s == NULL)
+		return (0);
+
+	while (s[n] != '\0')
+		n++;
+	return (n);
+}
+
+/**
+ * _total_len - Computes total bytes needed for argstostr
  * @ac: argument count
- * @av: argument vector (array of strings)
+ * @av: argument vector
  *
- * Return: Pointer to newly allocated string containing all args,
- *         each followed by '\n'; NULL if ac == 0, av == NULL, or on failure
+ * Return: total length = sum(len(av[i])) + ac newlines + 1 for '\0'
+ */
+static int _total_len(int ac, char **av)
+{
+	int i, total = 0;
+
+	for (i = 0; i < ac; i++)
+		total += _arg_len(av[i]) + 1; /* +1 for '\n' */
+	return (total + 1);               /* +1 for final '\0' */
+}
+
+/**
+ * argstostr - Concatenates all program arguments into one string
+ * @ac: argument count
+ * @av: argument vector
  *
- * Description:
- * - Computes total length needed: sum of arg lengths + one '\n' per arg + 1 for '\0'.
- * - Allocates buffer, copies args sequentially, inserts '\n' after each.
+ * Return: Newly allocated "args-with-newlines" string, or NULL on failure
  */
 #include <stdlib.h>
 
 char *argstostr(int ac, char **av)
 {
-	int i, j;
-	int total = 0;
-	char *buf, *p;
+	int i, j, k, total;
+	char *buf;
 
 	if (ac == 0 || av == NULL)
 		return (NULL);
 
-	/* First pass: compute total bytes needed */
-	for (i = 0; i < ac; i++)
-	{
-		if (av[i] != NULL)
-		{
-			j = 0;
-			while (av[i][j] != '\0')
-			{
-				total++;
-				j++;
-			}
-		}
-		/* one newline per argument */
-		total++;
-	}
-
-	/* +1 for final null terminator */
-	buf = (char *)malloc((total + 1) * sizeof(char));
+	total = _total_len(ac, av);
+	buf = (char *)malloc(sizeof(char) * total);
 	if (buf == NULL)
 		return (NULL);
 
-	/* Second pass: copy content and insert '\n' after each argument */
-	p = buf;
+	k = 0;
 	for (i = 0; i < ac; i++)
 	{
+		j = 0;
 		if (av[i] != NULL)
 		{
-			j = 0;
 			while (av[i][j] != '\0')
 			{
-				*p++ = av[i][j];
+				buf[k++] = av[i][j];
 				j++;
 			}
 		}
-		*p++ = '\n';
+		buf[k++] = '\n';
 	}
-	*p = '\0';
-
+	buf[k] = '\0';
 	return (buf);
 }
