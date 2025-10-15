@@ -51,8 +51,9 @@ static int _count_words(char *str)
  */
 static int _word_bounds(char *str, int *pos, int *start, int *end)
 {
-	int i = *pos;
+	int i;
 
+	i = *pos;
 	while (str[i] != '\0' && _isspace(str[i]))
 		i++;
 
@@ -94,14 +95,13 @@ static void _free_words(char **tab, int count)
  * strtow - Splits a string into words separated by spaces
  * @str: input string
  *
- * Return: array of strings, last element is NULL.
+ * Return: array of strings; last element is NULL.
  *         NULL if str is NULL/empty or on allocation failure.
  */
 char **strtow(char *str)
 {
 	char **tab;
-	int words, w = 0;
-	int pos = 0, start = 0, end = 0, len = 0;
+	int words, w, pos, start, end, len, i;
 
 	words = _count_words(str);
 	if (words == 0)
@@ -111,6 +111,8 @@ char **strtow(char *str)
 	if (tab == NULL)
 		return (NULL);
 
+	w = 0;
+	pos = 0;
 	while (_word_bounds(str, &pos, &start, &end) && w < words)
 	{
 		len = end - start;
@@ -120,8 +122,13 @@ char **strtow(char *str)
 			_free_words(tab, w);
 			return (NULL);
 		}
-		for (int i = 0; i < len; i++)
+
+		i = 0;
+		while (i < len)
+		{
 			tab[w][i] = str[start + i];
+			i++;
+		}
 		tab[w][len] = '\0';
 		w++;
 	}
