@@ -14,7 +14,7 @@ static int _isspace(char c)
 }
 
 /**
- * _count_words - Counts words in a string separated by spaces
+ * _count_words - Counts words separated by spaces
  * @str: input string
  *
  * Return: number of words (0 if str is NULL or empty)
@@ -28,15 +28,11 @@ static int _count_words(char *str)
 
 	while (str[i] != '\0')
 	{
-		/* Skip spaces */
 		while (str[i] != '\0' && _isspace(str[i]))
 			i++;
-
-		/* If at start of a word, count it */
 		if (str[i] != '\0' && !_isspace(str[i]))
 		{
 			words++;
-			/* Move to end of word */
 			while (str[i] != '\0' && !_isspace(str[i]))
 				i++;
 		}
@@ -45,22 +41,34 @@ static int _count_words(char *str)
 }
 
 /**
- * _word_len - Measures length of a word starting at str[pos]
+ * _word_bounds - Finds start and end indices of next word
  * @str: input string
- * @pos: start index
+ * @pos: current scan position (in/out)
+ * @start: out param for word start index
+ * @end: out param for word end index (exclusive)
  *
- * Return: length of the word
+ * Return: 1 if a word found, 0 otherwise
  */
-static int _word_len(char *str, int pos)
+static int _word_bounds(char *str, int *pos, int *start, int *end)
 {
-	int len = 0;
+	int i = *pos;
 
-	while (str[pos] != '\0' && !_isspace(str[pos]))
+	while (str[i] != '\0' && _isspace(str[i]))
+		i++;
+
+	if (str[i] == '\0')
 	{
-		len++;
-		pos++;
+		*pos = i;
+		return (0);
 	}
-	return (len);
+
+	*start = i;
+	while (str[i] != '\0' && !_isspace(str[i]))
+		i++;
+
+	*end = i;
+	*pos = i;
+	return (1);
 }
 
 /**
@@ -86,13 +94,14 @@ static void _free_words(char **tab, int count)
  * strtow - Splits a string into words separated by spaces
  * @str: input string
  *
- * Return: array of strings, each one word; last element is NULL.
+ * Return: array of strings, last element is NULL.
  *         NULL if str is NULL/empty or on allocation failure.
  */
 char **strtow(char *str)
 {
 	char **tab;
-	int i = 0, w = 0, start, len, words;
+	int words, w = 0;
+	int pos = 0, start = 0, end = 0, len = 0;
 
 	words = _count_words(str);
 	if (words == 0)
@@ -102,35 +111,19 @@ char **strtow(char *str)
 	if (tab == NULL)
 		return (NULL);
 
-	while (str[i] != '\0' && w < words)
+	while (_word_bounds(str, &pos, &start, &end) && w < words)
 	{
-		/* Skip spaces */
-		while (str[i] != '\0' && _isspace(str[i]))
-			i++;
-
-		if (str[i] == '\0')
-			break;
-
-		/* Mark start of word and find its length */
-		start = i;
-		len = _word_len(str, start);
-
-		/* Allocate and copy the word */
+		len = end - start;
 		tab[w] = (char *)malloc(sizeof(char) * (len + 1));
 		if (tab[w] == NULL)
 		{
 			_free_words(tab, w);
 			return (NULL);
 		}
-
-		/* Copy characters */
-		for (i = start; i < start + len; i++)
-			tab[w][i - start] = str[i];
+		for (int i = 0; i < len; i++)
+			tab[w][i] = str[start + i];
 		tab[w][len] = '\0';
 		w++;
-
-		/* Continue from end of the word */
-		/* i is already at start + len */
 	}
 
 	tab[w] = NULL;
