@@ -1,6 +1,9 @@
 /* 100-argstostr.c */
+#include <stddef.h>
+#include <stdlib.h>
+
 /**
- * _arg_len - Returns length of a single C-string
+ * _arg_len - Returns length of a C-string
  * @s: string pointer (may be NULL)
  *
  * Return: length (0 if s is NULL)
@@ -22,15 +25,15 @@ static int _arg_len(char *s)
  * @ac: argument count
  * @av: argument vector
  *
- * Return: total length = sum(len(av[i])) + ac newlines + 1 for '\0'
+ * Return: total = sum(len(av[i])) + ac newlines + 1 for '\0'
  */
 static int _total_len(int ac, char **av)
 {
 	int i, total = 0;
 
 	for (i = 0; i < ac; i++)
-		total += _arg_len(av[i]) + 1; /* +1 for '\n' */
-	return (total + 1);               /* +1 for final '\0' */
+		total += _arg_len(av[i]) + 1;
+	return (total + 1);
 }
 
 /**
@@ -38,10 +41,8 @@ static int _total_len(int ac, char **av)
  * @ac: argument count
  * @av: argument vector
  *
- * Return: Newly allocated "args-with-newlines" string, or NULL on failure
+ * Return: Newly allocated "args\n..." string, or NULL on failure
  */
-#include <stdlib.h>
-
 char *argstostr(int ac, char **av)
 {
 	int i, j, k, total;
