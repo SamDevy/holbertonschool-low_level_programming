@@ -5,7 +5,8 @@
  * malloc_checked - Allocates memory and exits with 98 on failure
  * @b: number of bytes to allocate
  *
- * Return: pointer to allocated memory (never NULL; process exits if malloc fails)
+ * Return: pointer to allocated memory (never NULL:
+ *         process exits with status 98 if malloc fails)
  */
 void *malloc_checked(unsigned int b)
 {
