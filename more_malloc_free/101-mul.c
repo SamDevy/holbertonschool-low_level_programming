@@ -11,11 +11,14 @@ void errors(void);
  * is_digit - checks if a string contains only digit characters
  * @s: string to be evaluated
  *
- * Return: 0 if a non-digit is found, 1 otherwise
+ * Return: 0 if a non-digit or empty string is found, 1 otherwise
  */
 int is_digit(char *s)
 {
 	int i = 0;
+
+	if (s[i] == '\0') /* An empty string is not a valid number */
+		return (0);
 
 	while (s[i])
 	{
@@ -67,7 +70,7 @@ void errors(void)
 int main(int argc, char *argv[])
 {
 	char *s1, *s2;
-	int len1, len2, total_len, i, j, carry, digit1, digit2, *result;
+	int len1, len2, total_len, i, j, *result;
 	int leading_zeros = 1;
 
 	if (argc != 3)
@@ -84,20 +87,20 @@ int main(int argc, char *argv[])
 	if (!result)
 		return (1); /* Malloc failure */
 
-	/* Perform multiplication */
+	/* Pass 1: Perform multiplication without handling carries */
 	for (i = len1 - 1; i >= 0; i--)
 	{
-		digit1 = s1[i] - '0';
-		carry = 0;
 		for (j = len2 - 1; j >= 0; j--)
 		{
-			digit2 = s2[j] - '0';
-			carry += result[i + j + 1] + (digit1 * digit2);
-			result[i + j + 1] = carry % 10;
-			carry /= 10;
+			result[i + j + 1] += (s1[i] - '0') * (s2[j] - '0');
 		}
-		if (carry > 0)
-			result[i] += carry;
+	}
+
+	/* Pass 2: Normalize the result by propagating carries */
+	for (i = total_len - 1; i > 0; i--)
+	{
+		result[i - 1] += result[i] / 10;
+		result[i] %= 10;
 	}
 
 	/* Print the result, skipping leading zeros */
@@ -117,3 +120,4 @@ int main(int argc, char *argv[])
 	free(result);
 	return (0);
 }
+
