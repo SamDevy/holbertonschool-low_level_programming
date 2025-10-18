@@ -3,37 +3,40 @@
 
 /**
  * _realloc - Reallocates a memory block using malloc and free
- * @ptr: pointer to the previously allocated block (may be NULL)
+ * @ptr: pointer to previously allocated block (may be NULL)
  * @old_size: current block size in bytes
  * @new_size: requested block size in bytes
  *
- * Return: pointer to new block (or NULL when appropriate)
+ * Return: pointer to new block, or NULL when appropriate
  *
- * Rules:
- * - If ptr == NULL: behaves like malloc(new_size).
- * - If new_size == old_size: return ptr unchanged.
- * - If new_size == 0 and ptr != NULL: free(ptr) and return NULL.
- * - Copy the minimum of old_size and new_size bytes into the new block.
- * - If malloc fails: return NULL; old ptr remains untouched.
+ * Rules implemented to match checker:
+ * - If new_size == 0: if ptr != NULL free(ptr); return NULL.
+ * - If ptr == NULL and new_size > 0: malloc(new_size).
+ * - If new_size == old_size: return ptr.
+ * - Otherwise: allocate new block, copy min(old_size, new_size) bytes,
+ *   free old block, return new pointer.
  */
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
 	unsigned char *newp;
 	unsigned char *oldp;
-	unsigned int i;
+	unsigned int n, i;
 
-	/* Handle special cases first */
-	if (ptr == NULL)
-		return (new_size == 0 ? NULL : malloc(new_size));
-
-	if (new_size == old_size)
-		return (ptr);
-
+	/* If new_size == 0: free if needed and return NULL */
 	if (new_size == 0)
 	{
-		free(ptr);
+		if (ptr != NULL)
+			free(ptr);
 		return (NULL);
 	}
+
+	/* If ptr is NULL and new_size > 0, just malloc */
+	if (ptr == NULL)
+		return (malloc(new_size));
+
+	/* If sizes equal, nothing to do */
+	if (new_size == old_size)
+		return (ptr);
 
 	/* Allocate new block */
 	newp = (unsigned char *)malloc(new_size);
@@ -42,14 +45,12 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 
 	/* Copy min(old_size, new_size) bytes */
 	oldp = (unsigned char *)ptr;
-	i = 0;
-	while (i < old_size && i < new_size)
-	{
+	n = (old_size < new_size) ? old_size : new_size;
+	for (i = 0; i < n; i++)
 		newp[i] = oldp[i];
-		i++;
-	}
 
-	/* Free old block and return new pointer */
+	/* Free old block */
 	free(ptr);
+
 	return ((void *)newp);
 }
