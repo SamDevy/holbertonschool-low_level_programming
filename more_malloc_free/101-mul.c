@@ -1,21 +1,10 @@
 #include <stdlib.h>
-#include <unistd.h>
 
-/* Function prototypes */
+/* Provided prototypes */
 int _putchar(char c);
 int is_digit(char *s);
 int _strlen(char *s);
 void errors(void);
-
-/**
- * _putchar - Writes a character to stdout
- * @c: The character to print
- * Return: On success 1, on error -1
- */
-int _putchar(char c)
-{
-	return write(1, &c, 1);
-}
 
 /**
  * is_digit - Checks if a string contains only digits and is not empty
@@ -78,7 +67,7 @@ int main(int argc, char *argv[])
 	char *s1, *s2;
 	int len1, len2, total_len;
 	int i, j;
-	long *result;
+	int *result;
 	int leading_zero = 1;
 
 	if (argc != 3)
@@ -93,7 +82,7 @@ int main(int argc, char *argv[])
 	len2 = _strlen(s2);
 	total_len = len1 + len2;
 
-	result = calloc(total_len, sizeof(long));
+	result = calloc(total_len, sizeof(int));
 	if (result == NULL)
 		errors();
 
@@ -124,7 +113,7 @@ int main(int argc, char *argv[])
 			_putchar(result[i] + '0');
 	}
 
-	if (leading_zero) /* If all were zeros (i.e. 0 * 0) */
+	if (leading_zero) /* If result is zero */
 		_putchar('0');
 
 	_putchar('\n');
