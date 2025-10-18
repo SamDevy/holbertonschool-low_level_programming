@@ -44,7 +44,7 @@ int _strlen(char *s)
 }
 
 /**
- * errors - handles errors for main
+ * errors - handles errors for main by printing "Error" and exiting
  */
 void errors(void)
 {
@@ -58,7 +58,7 @@ void errors(void)
 }
 
 /**
- * main - multiplies two positive numbers
+ * main - multiplies two positive numbers passed as arguments
  * @argc: number of arguments
  * @argv: array of arguments
  *
@@ -67,48 +67,50 @@ void errors(void)
 int main(int argc, char *argv[])
 {
 	char *s1, *s2;
-	int len1, len2, len, i, carry, digit1, digit2, *result, a = 0;
+	int len1, len2, total_len, i, carry, digit1, digit2, *result;
+	int leading_zeros = 1;
 
 	if (argc != 3)
 		errors();
-
 	s1 = argv[1];
 	s2 = argv[2];
-
 	if (!is_digit(s1) || !is_digit(s2))
 		errors();
 
 	len1 = _strlen(s1);
 	len2 = _strlen(s2);
-	len = len1 + len2;
-	result = calloc(len, sizeof(int));
+	total_len = len1 + len2;
+	result = calloc(total_len, sizeof(int));
 	if (!result)
-		return (1);
+		return (1); /* Malloc failure */
 
-	for (len1 = _strlen(s1) - 1; len1 >= 0; len1--)
+	/* Perform multiplication */
+	for (i = len1 - 1; i >= 0; i--)
 	{
-		digit1 = s1[len1] - '0';
+		digit1 = s1[i] - '0';
 		carry = 0;
-		for (len2 = _strlen(s2) - 1; len2 >= 0; len2--)
+		for (int j = len2 - 1; j >= 0; j--)
 		{
-			digit2 = s2[len2] - '0';
-			carry += result[len1 + len2 + 1] + (digit1 * digit2);
-			result[len1 + len2 + 1] = carry % 10;
+			digit2 = s2[j] - '0';
+			carry += result[i + j + 1] + (digit1 * digit2);
+			result[i + j + 1] = carry % 10;
 			carry /= 10;
 		}
 		if (carry > 0)
-			result[len1 + len2 + 1] += carry;
+			result[i] += carry;
 	}
 
-	for (i = 0; i < len; i++)
+	/* Print the result, skipping leading zeros */
+	for (i = 0; i < total_len; i++)
 	{
-		if (result[i])
-			a = 1;
-		if (a)
+		if (result[i] != 0)
+			leading_zeros = 0;
+		if (!leading_zeros)
 			_putchar(result[i] + '0');
 	}
 
-	if (!a)
+	/* If result is 0, print a single '0' */
+	if (leading_zeros)
 		_putchar('0');
 
 	_putchar('\n');
