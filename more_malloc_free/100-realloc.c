@@ -14,7 +14,6 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 	unsigned char *newp, *oldp;
 	unsigned int n, i;
 
-	/* If new_size == 0: free if needed and return NULL (matches checker) */
 	if (new_size == 0)
 	{
 		if (ptr != NULL)
@@ -22,26 +21,21 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 		return (NULL);
 	}
 
-	/* If ptr is NULL and new_size > 0, behave like malloc(new_size) */
 	if (ptr == NULL)
 		return (malloc(new_size));
 
-	/* If sizes are equal, do nothing */
 	if (new_size == old_size)
 		return (ptr);
 
-	/* Allocate new block */
 	newp = (unsigned char *)malloc(new_size);
 	if (newp == NULL)
 		return (NULL);
 
-	/* Copy min(old_size, new_size) bytes */
 	oldp = (unsigned char *)ptr;
 	n = (old_size < new_size) ? old_size : new_size;
 	for (i = 0; i < n; i++)
 		newp[i] = oldp[i];
 
-	/* Free old block and return new pointer */
 	free(ptr);
 	return ((void *)newp);
 }
