@@ -4,11 +4,6 @@
  * @h: head pointer to the list
  *
  * Return: number of nodes
- *
- * Behavior:
- * - Prints "[len] str" per node.
- * - If str is NULL, prints "[0] (nil)".
- * - Uses printf as allowed by the task.
  */
 #include <stdio.h>
 #include "lists.h"
