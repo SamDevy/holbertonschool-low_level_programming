@@ -1,25 +1,23 @@
 #include <stdlib.h>
-#include <stdio.h>
 
-/* Function Prototypes */
+/* Prototypes */
 int _putchar(char c);
 int is_digit(char *s);
 int _strlen(char *s);
 void errors(void);
 
 /**
- * is_digit - checks if a string contains only digit characters
- * @s: string to be evaluated
+ * is_digit - checks if a string contains only digits
+ * @s: string to evaluate
  *
- * Return: 0 if a non-digit or empty string is found, 1 otherwise
+ * Return: 1 if only digits and not empty, 0 otherwise
  */
 int is_digit(char *s)
 {
 	int i = 0;
 
-	if (s[i] == '\0') /* An empty string is not a valid number */
+	if (s[i] == '\0')
 		return (0);
-
 	while (s[i])
 	{
 		if (s[i] < '0' || s[i] > '9')
@@ -33,48 +31,50 @@ int is_digit(char *s)
  * _strlen - returns the length of a string
  * @s: string to evaluate
  *
- * Return: the length of the string
+ * Return: length
  */
 int _strlen(char *s)
 {
 	int i = 0;
 
 	while (s[i] != '\0')
-	{
 		i++;
-	}
 	return (i);
 }
 
 /**
- * errors - handles errors for main by printing "Error" and exiting
+ * errors - prints "Error" and exits with status 98
  */
 void errors(void)
 {
-	char *error_msg = "Error";
-	int i;
+	char *msg = "Error";
+	int i = 0;
 
-	for (i = 0; error_msg[i] != '\0'; i++)
-		_putchar(error_msg[i]);
+	while (msg[i] != '\0')
+	{
+		_putchar(msg[i]);
+		i++;
+	}
 	_putchar('\n');
 	exit(98);
 }
 
 /**
- * main - multiplies two positive numbers passed as arguments
- * @argc: number of arguments
- * @argv: array of arguments
+ * main - multiplies two positive base-10 numbers
+ * @argc: arguments count
+ * @argv: arguments vector
  *
- * Return: always 0 (Success)
+ * Return: 0 on success
  */
 int main(int argc, char *argv[])
 {
 	char *s1, *s2;
-	int len1, len2, total_len, i, j, *result;
-	int leading_zeros = 1;
+	int len1, len2, total_len, i, j, leading_zeros;
+	int *result;
 
 	if (argc != 3)
 		errors();
+
 	s1 = argv[1];
 	s2 = argv[2];
 	if (!is_digit(s1) || !is_digit(s2))
@@ -83,27 +83,31 @@ int main(int argc, char *argv[])
 	len1 = _strlen(s1);
 	len2 = _strlen(s2);
 	total_len = len1 + len2;
-	result = calloc(total_len, sizeof(int));
-	if (!result)
-		return (1); /* Malloc failure */
 
-	/* Pass 1: Perform multiplication without handling carries */
+	result = (int *)malloc(sizeof(int) * total_len);
+	if (result == NULL)
+		errors();
+
+	/* zero-initialize result (calloc not allowed) */
+	for (i = 0; i < total_len; i++)
+		result[i] = 0;
+
+	/* multiply digits (no carries yet) */
 	for (i = len1 - 1; i >= 0; i--)
 	{
 		for (j = len2 - 1; j >= 0; j--)
-		{
 			result[i + j + 1] += (s1[i] - '0') * (s2[j] - '0');
-		}
 	}
 
-	/* Pass 2: Normalize the result by propagating carries */
+	/* propagate carries */
 	for (i = total_len - 1; i > 0; i--)
 	{
 		result[i - 1] += result[i] / 10;
 		result[i] %= 10;
 	}
 
-	/* Print the result, skipping leading zeros */
+	/* print skipping leading zeros */
+	leading_zeros = 1;
 	for (i = 0; i < total_len; i++)
 	{
 		if (result[i] != 0)
@@ -111,8 +115,6 @@ int main(int argc, char *argv[])
 		if (!leading_zeros)
 			_putchar(result[i] + '0');
 	}
-
-	/* If result is 0, print a single '0' */
 	if (leading_zeros)
 		_putchar('0');
 
@@ -120,4 +122,3 @@ int main(int argc, char *argv[])
 	free(result);
 	return (0);
 }
-
