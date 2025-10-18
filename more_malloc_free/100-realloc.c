@@ -14,15 +14,13 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 	unsigned int n, i;
 
 	/* If ptr is NULL, behave like malloc(new_size) */
-    /* THIS BLOCK MUST COME FIRST */
 	if (ptr == NULL)
 		return (malloc(new_size));
 
 	/* Require NULL return when new_size == 0 and ptr is NOT NULL */
 	if (new_size == 0)
 	{
-        /* The check (ptr != NULL) is guaranteed now, 
-           but we can leave it for clarity or just free */
+		/* ptr is guaranteed non-NULL here, so just free it */
 		free(ptr);
 		return (NULL);
 	}
