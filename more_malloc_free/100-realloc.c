@@ -1,4 +1,3 @@
-/* 100-realloc.c */
 #include <stdlib.h>
 
 /**
@@ -14,17 +13,19 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 	unsigned char *newp, *oldp;
 	unsigned int n, i;
 
-	/* Require NULL return when new_size == 0 (checker expectation) */
-	if (new_size == 0)
-	{
-		if (ptr != NULL)
-			free(ptr);
-		return (NULL);
-	}
-
-	/* If ptr is NULL and new_size > 0, behave like malloc(new_size) */
+	/* If ptr is NULL, behave like malloc(new_size) */
+    /* THIS BLOCK MUST COME FIRST */
 	if (ptr == NULL)
 		return (malloc(new_size));
+
+	/* Require NULL return when new_size == 0 and ptr is NOT NULL */
+	if (new_size == 0)
+	{
+        /* The check (ptr != NULL) is guaranteed now, 
+           but we can leave it for clarity or just free */
+		free(ptr);
+		return (NULL);
+	}
 
 	/* If sizes are equal, do nothing */
 	if (new_size == old_size)
