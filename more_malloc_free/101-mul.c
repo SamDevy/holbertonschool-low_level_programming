@@ -67,7 +67,7 @@ void errors(void)
 int main(int argc, char *argv[])
 {
 	char *s1, *s2;
-	int len1, len2, total_len, i, carry, digit1, digit2, *result;
+	int len1, len2, total_len, i, j, carry, digit1, digit2, *result;
 	int leading_zeros = 1;
 
 	if (argc != 3)
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	{
 		digit1 = s1[i] - '0';
 		carry = 0;
-		for (int j = len2 - 1; j >= 0; j--)
+		for (j = len2 - 1; j >= 0; j--)
 		{
 			digit2 = s2[j] - '0';
 			carry += result[i + j + 1] + (digit1 * digit2);
