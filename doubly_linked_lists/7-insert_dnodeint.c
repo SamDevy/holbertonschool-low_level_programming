@@ -1,71 +1,18 @@
 /* 7-insert_dnodeint.c */
-/**
- * insert_dnodeint_at_index - Inserts a new node at a given position
- * @h: address of the head pointer
- * @idx: index where the new node should be added (0-based)
- * @n: integer value for the new node
- *
- * Return: address of the new node, or NULL if it failed or idx is out of range
- */
 #include <stdlib.h>
 #include "lists.h"
 
-dlistint_t *insert_dnodeint_at_index(dlistint_t **h, unsigned int idx, int n)
+/**
+ * _insert_before - Inserts new node with n before target cur
+ * @cur: node to insert before (must be non-NULL)
+ * @n: value for new node
+ *
+ * Return: pointer to new node or NULL
+ */
+static dlistint_t *_insert_before(dlistint_t *cur, int n)
 {
-	dlistint_t *node, *cur;
-	unsigned int i;
+	dlistint_t *node;
 
-	if (h == NULL)
-		return (NULL);
-
-	/* Insert at head position */
-	if (idx == 0)
-	{
-		node = (dlistint_t *)malloc(sizeof(dlistint_t));
-		if (node == NULL)
-			return (NULL);
-		node->n = n;
-		node->prev = NULL;
-		node->next = *h;
-		if (*h != NULL)
-			(*h)->prev = node;
-		*h = node;
-		return (node);
-	}
-
-	/* Walk to node currently at position idx */
-	cur = *h;
-	for (i = 0; cur != NULL && i < idx; i++)
-		cur = cur->next;
-
-	/* If cur is NULL, idx may be exactly at end => attach after tail */
-	if (cur == NULL)
-	{
-		/* Find tail */
-		dlistint_t *tail = *h;
-
-		if (tail == NULL)
-			return (NULL); /* idx > 0 with empty list */
-
-		while (tail->next != NULL)
-			tail = tail->next;
-
-		/* Only valid if idx equals current length (append) */
-		if (i == idx)
-		{
-			node = (dlistint_t *)malloc(sizeof(dlistint_t));
-			if (node == NULL)
-				return (NULL);
-			node->n = n;
-			node->next = NULL;
-			node->prev = tail;
-			tail->next = node;
-			return (node);
-		}
-		return (NULL);
-	}
-
-	/* Insert before cur (at index idx), linking with its prev */
 	node = (dlistint_t *)malloc(sizeof(dlistint_t));
 	if (node == NULL)
 		return (NULL);
@@ -79,4 +26,63 @@ dlistint_t *insert_dnodeint_at_index(dlistint_t **h, unsigned int idx, int n)
 	cur->prev = node;
 
 	return (node);
+}
+
+/**
+ * _node_at_index_or_end - Returns node at idx or NULL; sets reached_len
+ * @h: head pointer
+ * @idx: target index
+ * @reached_len: out flag set to 1 if traversal reached list end with i == idx
+ *
+ * Return: node at idx if exists; NULL otherwise
+ */
+static dlistint_t *_node_at_index_or_end(dlistint_t *h, unsigned int idx,
+					 int *reached_len)
+{
+	unsigned int i = 0;
+
+	*reached_len = 0;
+	while (h != NULL && i < idx)
+	{
+		h = h->next;
+		i++;
+	}
+
+	if (h != NULL && i == idx)
+		return (h);
+
+	/* if h == NULL and i == idx, caller may append at end */
+	if (h == NULL && i == idx)
+		*reached_len = 1;
+
+	return (NULL);
+}
+
+/**
+ * insert_dnodeint_at_index - Inserts a new node at a given position
+ * @h: address of head pointer
+ * @idx: index where the new node should be added (0-based)
+ * @n: integer value for the new node
+ *
+ * Return: address of the new node, or NULL if it failed/out of range
+ */
+dlistint_t *insert_dnodeint_at_index(dlistint_t **h, unsigned int idx, int n)
+{
+	dlistint_t *cur;
+	int can_append;
+
+	if (h == NULL)
+		return (NULL);
+
+	if (idx == 0)
+		return (add_dnodeint(h, n));
+
+	cur = _node_at_index_or_end(*h, idx, &can_append);
+	if (cur != NULL)
+		return (_insert_before(cur, n));
+
+	if (can_append)
+		return (add_dnodeint_end(h, n));
+
+	return (NULL);
 }
