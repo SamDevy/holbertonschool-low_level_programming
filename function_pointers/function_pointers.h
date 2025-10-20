@@ -1,15 +1,13 @@
 #ifndef FUNCTION_POINTERS_H
 #define FUNCTION_POINTERS_H
 
-/*
- * This file contains the function prototypes for the
- * 0x0E. C - Function pointers project.
- */
+#include <stddef.h>
 
-#include <stddef.h> /* This includes NULL */
+/* Prototypes for the project */
 
-/* 0. What's my name */
 void print_name(char *name, void (*f)(char *));
+void array_iterator(int *array, size_t size, void (*action)(int));
 
 
 #endif /* FUNCTION_POINTERS_H */
+
