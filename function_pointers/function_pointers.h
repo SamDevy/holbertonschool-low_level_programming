@@ -2,7 +2,7 @@
 #define FUNCTION_POINTERS_H
 
 /*
- * This file contains the function prototypes for the 
+ * This file contains the function prototypes for the
  * 0x0E. C - Function pointers project.
  */
 
