@@ -1,16 +1,13 @@
 /* 4-new_dog.c */
-/**
- * new_dog - Creates a new dog with deep-copied name and owner
- * @name: dog's name (source string)
- * @age: dog's age
- * @owner: owner's name (source string)
- *
- * Return: pointer to newly allocated dog_t, or NULL on failure
- */
 #include <stdlib.h>
 #include "dog.h"
 
-/* local strlen (C90) */
+/**
+ * _slen - Computes length of a C-string
+ * @s: input string (may be NULL)
+ *
+ * Return: number of chars before '\0' (0 if s is NULL)
+ */
 static int _slen(const char *s)
 {
 	int n = 0;
@@ -22,13 +19,20 @@ static int _slen(const char *s)
 	return (n);
 }
 
-/* local strcpy */
+/**
+ * _scpy - Copies a C-string into destination buffer
+ * @dst: destination buffer (must be large enough)
+ * @src: source C-string (must not be NULL)
+ *
+ * Return: Nothing.
+ */
 static void _scpy(char *dst, const char *src)
 {
 	int i = 0;
 
 	if (dst == (char *)0 || src == (const char *)0)
 		return;
+
 	while (src[i] != '\0')
 	{
 		dst[i] = src[i];
@@ -37,6 +41,14 @@ static void _scpy(char *dst, const char *src)
 	dst[i] = '\0';
 }
 
+/**
+ * new_dog - Creates a new dog with deep-copied name and owner
+ * @name: dog's name (source string)
+ * @age: dog's age
+ * @owner: owner's name (source string)
+ *
+ * Return: pointer to newly allocated dog_t, or NULL on failure
+ */
 dog_t *new_dog(char *name, float age, char *owner)
 {
 	dog_t *d;
