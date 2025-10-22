@@ -21,4 +21,12 @@ int _putchar(char c);
  */
 int sum_them_all(const unsigned int n, ...);
 
+/**
+ * print_numbers - prints numbers, followed by a new line.
+ * @separator: The string to be printed between numbers.
+ * @n: The number of integers passed to the function.
+ * @...: A variable number of numbers to be printed.
+ */
+void print_numbers(const char *separator, const unsigned int n, ...);
+
 #endif /* VARIADIC_FUNCTIONS_H */
