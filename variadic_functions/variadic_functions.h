@@ -37,4 +37,11 @@ void print_numbers(const char *separator, const unsigned int n, ...);
  */
 void print_strings(const char *separator, const unsigned int n, ...);
 
+/**
+ * print_all - prints anything.
+ * @format: A list of types of arguments passed to the function.
+ * @...: A variable number of arguments to be printed.
+ */
+void print_all(const char * const format, ...);
+
 #endif /* VARIADIC_FUNCTIONS_H */
