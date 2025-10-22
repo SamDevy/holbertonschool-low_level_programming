@@ -8,10 +8,11 @@ section .data
     message_len equ $ - hello_message
 
 section .text
-    ; The _start label is the default entry point for the linker.
-    global _start
+    ; Export the 'main' symbol to be visible to the linker.
+    ; Using 'main' as the entry point for better compatibility with GCC.
+    global main
 
-_start:
+main:
     ; Prepare for the 'write' system call.
     ; syscall number for write is 1.
     mov rax, 1
@@ -28,6 +29,6 @@ _start:
     ; syscall number for exit is 60.
     mov rax, 60
     ; Exit code 0 indicates successful execution.
-    mov rdi, 0
+    xor rdi, rdi ; Set rdi to 0
     ; Invoke the kernel to terminate the program.
     syscall
