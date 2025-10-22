@@ -29,4 +29,12 @@ int sum_them_all(const unsigned int n, ...);
  */
 void print_numbers(const char *separator, const unsigned int n, ...);
 
+/**
+ * print_strings - prints strings, followed by a new line.
+ * @separator: The string to be printed between the strings.
+ * @n: The number of strings passed to the function.
+ * @...: A variable number of strings to be printed.
+ */
+void print_strings(const char *separator, const unsigned int n, ...);
+
 #endif /* VARIADIC_FUNCTIONS_H */
