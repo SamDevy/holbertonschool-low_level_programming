@@ -1,68 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <elf.h>
 #include <string.h>
 #include <errno.h>
 
-void print_error_and_exit(const char *msg)
-{
-    dprintf(STDERR_FILENO, "%s\n", msg);
-    exit(98);
-}
+#define ERR_EXIT(msg) do { perror(msg); exit(98); } while (0)
 
-void print_magic(unsigned char *ident)
+void print_magic(unsigned char *e_ident)
 {
     int i;
     printf("  Magic:   ");
     for (i = 0; i < EI_NIDENT; i++)
     {
-        printf("%02x", ident[i]);
-        if (i == EI_NIDENT - 1)
-            printf("\n");
-        else
+        printf("%02x", e_ident[i]);
+        if (i != EI_NIDENT - 1)
             printf(" ");
     }
+    printf("\n");
 }
 
-void print_class(unsigned char class)
+void print_class(unsigned char ei_class)
 {
     printf("  Class:                             ");
-    switch (class)
+    switch (ei_class)
     {
-        case ELFCLASSNONE: printf("None\n"); break;
-        case ELFCLASS32: printf("ELF32\n"); break;
-        case ELFCLASS64: printf("ELF64\n"); break;
-        default: printf("<unknown: %x>\n", class); break;
+        case ELFCLASS32:
+            printf("ELF32\n");
+            break;
+        case ELFCLASS64:
+            printf("ELF64\n");
+            break;
+        default:
+            printf("<unknown: %x>\n", ei_class);
     }
 }
 
-void print_data(unsigned char data)
+void print_data(unsigned char ei_data)
 {
     printf("  Data:                              ");
-    switch (data)
+    switch (ei_data)
     {
-        case ELFDATANONE: printf("None\n"); break;
-        case ELFDATA2LSB: printf("2's complement, little endian\n"); break;
-        case ELFDATA2MSB: printf("2's complement, big endian\n"); break;
-        default: printf("<unknown: %x>\n", data); break;
+        case ELFDATA2LSB:
+            printf("2's complement, little endian\n");
+            break;
+        case ELFDATA2MSB:
+            printf("2's complement, big endian\n");
+            break;
+        default:
+            printf("<unknown: %x>\n", ei_data);
     }
 }
 
-void print_version(unsigned char version)
+void print_version(unsigned char ei_version)
 {
-    printf("  Version:                           %d", version);
-    if (version == EV_CURRENT)
-        printf(" (current)\n");
+    printf("  Version:                           ");
+    if (ei_version == EV_CURRENT)
+        printf("%d (current)\n", ei_version);
     else
-        printf("\n");
+        printf("%d\n", ei_version);
 }
 
-void print_osabi(unsigned char osabi)
+void print_osabi(unsigned char ei_osabi)
 {
     printf("  OS/ABI:                            ");
-    switch (osabi)
+    switch (ei_osabi)
     {
         case ELFOSABI_SYSV: printf("UNIX - System V\n"); break;
         case ELFOSABI_HPUX: printf("UNIX - HP-UX\n"); break;
@@ -74,22 +77,20 @@ void print_osabi(unsigned char osabi)
         case ELFOSABI_TRU64: printf("UNIX - TRU64\n"); break;
         case ELFOSABI_ARM: printf("ARM\n"); break;
         case ELFOSABI_STANDALONE: printf("Standalone App\n"); break;
-        default: printf("<unknown: %x>\n", osabi); break;
+        default:
+            printf("<unknown: %x>\n", ei_osabi);
     }
 }
 
-void print_abiversion(unsigned char abiver)
+void print_abiversion(unsigned char abi_version)
 {
-    printf("  ABI Version:                       %d\n", abiver);
+    printf("  ABI Version:                       %d\n", abi_version);
 }
 
-void print_type(uint16_t e_type, unsigned char data)
+void print_type(unsigned short e_type, int is_big_endian)
 {
-    /* Convert e_type according to endianness */
-    if (data == ELFDATA2MSB)
-    {
-        e_type = (e_type >> 8) | (e_type << 8);
-    }
+    if (is_big_endian)
+        e_type = (e_type >> 8) | (e_type << 8); /* Swap bytes */
 
     printf("  Type:                              ");
     switch (e_type)
@@ -99,100 +100,155 @@ void print_type(uint16_t e_type, unsigned char data)
         case ET_EXEC: printf("EXEC (Executable file)\n"); break;
         case ET_DYN: printf("DYN (Shared object file)\n"); break;
         case ET_CORE: printf("CORE (Core file)\n"); break;
-        default: printf("<unknown: %x>\n", e_type); break;
+        default:
+            printf("<unknown: %x>\n", e_type);
     }
 }
 
-void print_entry(unsigned long long entry, unsigned char class)
+unsigned long long read_entry(unsigned char *header, unsigned char ei_class, int is_big_endian)
 {
-    printf("  Entry point address:               ");
-    if (class == ELFCLASS32)
-        printf("0x%lx\n", (unsigned long)entry);
-    else
-        printf("0x%llx\n", entry);
+    unsigned long long entry = 0;
+    int i;
+
+    if (ei_class == ELFCLASS32)
+    {
+        /* entry is 4 bytes at offset 24 */
+        unsigned char *p = header + 24;
+        if (is_big_endian)
+            for (i = 0; i < 4; i++)
+                entry = (entry << 8) + p[i];
+        else
+            for (i = 3; i >= 0; i--)
+                entry = (entry << 8) + p[i];
+    }
+    else if (ei_class == ELFCLASS64)
+    {
+        /* entry is 8 bytes at offset 24 */
+        unsigned char *p = header + 24;
+        if (is_big_endian)
+            for (i = 0; i < 8; i++)
+                entry = (entry << 8) + p[i];
+        else
+            for (i = 7; i >= 0; i--)
+                entry = (entry << 8) + p[i];
+    }
+    return entry;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     int fd;
-    ssize_t n;
-    unsigned char ident[EI_NIDENT];
-    Elf32_Ehdr ehdr32;
-    Elf64_Ehdr ehdr64;
-    int i;
+    ssize_t n_read;
+    unsigned char header[64]; /* Max ELF header size */
+    unsigned char e_ident[EI_NIDENT];
+    unsigned char ei_class, ei_data, ei_version, ei_osabi, ei_abiversion;
+    unsigned short e_type;
+    int is_big_endian;
+    unsigned long long entry_point;
 
     if (argc != 2)
     {
-        print_error_and_exit("Usage: elf_header elf_filename");
+        dprintf(STDERR_FILENO, "Usage: %s elf_filename\n", argv[0]);
+        exit(98);
     }
 
     fd = open(argv[1], O_RDONLY);
     if (fd == -1)
-    {
-        print_error_and_exit("Error: Cannot open file");
-    }
+        ERR_EXIT("Error: Can't read file");
 
     /* Read ELF identification bytes */
-    n = read(fd, ident, EI_NIDENT);
-    if (n != EI_NIDENT)
+    n_read = read(fd, e_ident, EI_NIDENT);
+    if (n_read != EI_NIDENT)
     {
+        dprintf(STDERR_FILENO, "Error: Can't read ELF header\n");
         close(fd);
-        print_error_and_exit("Error: Cannot read ELF header");
+        exit(98);
     }
 
-    /* Check ELF magic */
-    if (ident[EI_MAG0] != ELFMAG0 ||
-        ident[EI_MAG1] != ELFMAG1 ||
-        ident[EI_MAG2] != ELFMAG2 ||
-        ident[EI_MAG3] != ELFMAG3)
+    /* Verify ELF magic */
+    if (e_ident[0] != 0x7f || e_ident[1] != 'E' || e_ident[2] != 'L' || e_ident[3] != 'F')
     {
+        dprintf(STDERR_FILENO, "Error: Not an ELF file\n");
         close(fd);
-        print_error_and_exit("Error: Not an ELF file");
+        exit(98);
     }
 
-    printf("ELF Header:\n");
-    print_magic(ident);
-    print_class(ident[EI_CLASS]);
-    print_data(ident[EI_DATA]);
-    print_version(ident[EI_VERSION]);
-    print_osabi(ident[EI_OSABI]);
-    print_abiversion(ident[EI_ABIVERSION]);
+    /* Read rest of ELF header */
+    /* ELF header total size depends on class */
+    ei_class = e_ident[EI_CLASS];
+    ei_data = e_ident[EI_DATA];
+    ei_version = e_ident[EI_VERSION];
+    ei_osabi = e_ident[EI_OSABI];
+    ei_abiversion = e_ident[EI_ABIVERSION];
 
-    /* Now read rest of ELF header depending on class */
-    if (lseek(fd, 0, SEEK_SET) == -1)
+    if (ei_class == ELFCLASS32)
     {
-        close(fd);
-        print_error_and_exit("Error: lseek failed");
-    }
+        /* ELF32 header is 52 bytes total */
+        if (lseek(fd, 0, SEEK_SET) == -1)
+            ERR_EXIT("Error: Can't seek file");
 
-    if (ident[EI_CLASS] == ELFCLASS32)
-    {
-        n = read(fd, &ehdr32, sizeof(Elf32_Ehdr));
-        if (n != sizeof(Elf32_Ehdr))
+        n_read = read(fd, header, 52);
+        if (n_read != 52)
         {
+            dprintf(STDERR_FILENO, "Error: Can't read full ELF32 header\n");
             close(fd);
-            print_error_and_exit("Error: Cannot read ELF header");
+            exit(98);
         }
-        print_type(ehdr32.e_type, ident[EI_DATA]);
-        print_entry(ehdr32.e_entry, ELFCLASS32);
     }
-    else if (ident[EI_CLASS] == ELFCLASS64)
+    else if (ei_class == ELFCLASS64)
     {
-        n = read(fd, &ehdr64, sizeof(Elf64_Ehdr));
-        if (n != sizeof(Elf64_Ehdr))
+        /* ELF64 header is 64 bytes total */
+        if (lseek(fd, 0, SEEK_SET) == -1)
+            ERR_EXIT("Error: Can't seek file");
+
+        n_read = read(fd, header, 64);
+        if (n_read != 64)
         {
+            dprintf(STDERR_FILENO, "Error: Can't read full ELF64 header\n");
             close(fd);
-            print_error_and_exit("Error: Cannot read ELF header");
+            exit(98);
         }
-        print_type(ehdr64.e_type, ident[EI_DATA]);
-        print_entry(ehdr64.e_entry, ELFCLASS64);
     }
     else
     {
+        dprintf(STDERR_FILENO, "Error: Invalid ELF class\n");
         close(fd);
-        print_error_and_exit("Error: Invalid ELF Class");
+        exit(98);
     }
 
+    /* Determine endianess */
+    if (ei_data == ELFDATA2MSB)
+        is_big_endian = 1;
+    else if (ei_data == ELFDATA2LSB)
+        is_big_endian = 0;
+    else
+    {
+        dprintf(STDERR_FILENO, "Error: Unknown data encoding\n");
+        close(fd);
+        exit(98);
+    }
+
+    /* Extract type */
+    e_type = *(unsigned short *)(header + 16);
+
+    /* Print output */
+    printf("ELF Header:\n");
+    print_magic(e_ident);
+    print_class(ei_class);
+    print_data(ei_data);
+    print_version(ei_version);
+    print_osabi(ei_osabi);
+    print_abiversion(ei_abiversion);
+    print_type(e_type, is_big_endian);
+
+    entry_point = read_entry(header, ei_class, is_big_endian);
+    printf("  Entry point address:               ");
+
+    if (ei_class == ELFCLASS32)
+        printf("0x%x\n", (unsigned int)entry_point);
+    else
+        printf("0x%llx\n", entry_point);
+
     close(fd);
-    return 0;
+    return (0);
 }
