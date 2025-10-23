@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <elf.h> /* This header is crucial */
+#include <elf.h>
 
 /* Function Prototypes */
 void check_elf(unsigned char *e_ident);
@@ -19,8 +19,6 @@ void close_elf(int fd);
 /**
  * check_elf - Checks if a file is an ELF file.
  * @e_ident: A pointer to an array containing the ELF magic numbers.
- *
- * Description: If the file is not an ELF file, exit with code 98.
  */
 void check_elf(unsigned char *e_ident)
 {
@@ -172,9 +170,11 @@ void print_abi_version(unsigned char *e_ident)
  */
 void print_type(unsigned int e_type, unsigned char *e_ident)
 {
-	/* Handle endianness for e_type (it's a 2-byte value) */
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
-		e_type = (e_type >> 8) | (e_type << 8);
+	{
+		/* Correct 16-bit swap */
+		e_type = ((e_type & 0xFF00) >> 8) | ((e_type & 0x00FF) << 8);
+	}
 
 	printf("  Type:                              ");
 	switch (e_type)
@@ -206,26 +206,27 @@ void print_type(unsigned int e_type, unsigned char *e_ident)
  */
 void print_entry(unsigned long int e_entry, unsigned char *e_ident)
 {
-	/* Handle endianness for e_entry (4-byte or 8-byte value) */
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
 	{
 		if (e_ident[EI_CLASS] == ELFCLASS32)
 		{
-			e_entry = ((e_entry << 24) & 0xFF000000) |
-				  ((e_entry <<  8) & 0x00FF0000) |
-				  ((e_entry >>  8) & 0x0000FF00) |
-				  ((e_entry >> 24) & 0x000000FF);
+			/* Correct 32-bit swap */
+			e_entry = ((e_entry & 0xFF000000) >> 24) |
+				  ((e_entry & 0x00FF0000) >>  8) |
+				  ((e_entry & 0x0000FF00) <<  8) |
+				  ((e_entry & 0x000000FF) << 24);
 		}
 		else
 		{
-			e_entry = ((e_entry << 56) & 0xFF00000000000000UL) |
-				  ((e_entry << 40) & 0x00FF000000000000UL) |
-				  ((e_entry << 24) & 0x0000FF0000000000UL) |
-				  ((e_entry <<  8) & 0x000000FF00000000UL) |
-				  ((e_entry >>  8) & 0x00000000FF000000UL) |
-				  ((e_entry >> 24) & 0x0000000000FF0000UL) |
-				  ((e_entry >> 40) & 0x000000000000FF00UL) |
-				  ((e_entry >> 56) & 0x00000000000000FFUL);
+			/* Correct 64-bit swap */
+			e_entry = ((e_entry & 0xFF00000000000000UL) >> 56) |
+				  ((e_entry & 0x00FF000000000000UL) >> 40) |
+				  ((e_entry & 0x0000FF0000000000UL) >> 24) |
+				  ((e_entry & 0x000000FF00000000UL) >>  8) |
+				  ((e_entry & 0x00000000FF000000UL) <<  8) |
+				  ((e_entry & 0x0000000000FF0000UL) << 24) |
+				  ((e_entry & 0x000000000000FF00UL) << 40) |
+				  ((e_entry & 0x00000000000000FFUL) << 56);
 		}
 	}
 
@@ -239,14 +240,12 @@ void print_entry(unsigned long int e_entry, unsigned char *e_ident)
 /**
  * close_elf - Closes an ELF file descriptor.
  * @fd: The file descriptor to close.
- *
- * Description: If close() fails, exit with code 98.
  */
 void close_elf(int fd)
 {
 	if (close(fd) == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't close fd\n");
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd);
 		exit(98);
 	}
 }
@@ -258,9 +257,6 @@ void close_elf(int fd)
  * @argv: An array of pointers to the arguments.
  *
  * Return: 0 on success.
- *
- * Description: If the file is not an ELF file or an error occurs,
- * exit with code 98.
  */
 int main(int argc, char *argv[])
 {
@@ -278,7 +274,6 @@ int main(int argc, char *argv[])
 		dprintf(STDERR_FILENO, "Error: Can't open file %s\n", argv[1]);
 		exit(98);
 	}
-	/* Read the entire 64-bit header (max size) - 1st read */
 	if (read(fd, &header, sizeof(header)) != sizeof(header))
 	{
 		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
