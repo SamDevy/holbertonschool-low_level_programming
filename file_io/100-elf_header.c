@@ -4,7 +4,11 @@
 #include <unistd.h>
 #include <elf.h>
 
-#define ERR_EXIT(msg) do { perror(msg); exit(98); } while (0)
+void err_exit(char *msg)
+{
+	perror(msg);
+	exit(98);
+}
 
 void print_magic(unsigned char *e_ident)
 {
@@ -69,9 +73,6 @@ void print_osabi(unsigned char ei_osabi)
 		case ELFOSABI_SYSV:
 			printf("UNIX - System V\n");
 			break;
-		case ELFOSABI_HPUX:
-			printf("UNIX - HP-UX\n");
-			break;
 		case ELFOSABI_NETBSD:
 			printf("UNIX - NetBSD\n");
 			break;
@@ -80,21 +81,6 @@ void print_osabi(unsigned char ei_osabi)
 			break;
 		case ELFOSABI_SOLARIS:
 			printf("UNIX - Solaris\n");
-			break;
-		case ELFOSABI_IRIX:
-			printf("UNIX - IRIX\n");
-			break;
-		case ELFOSABI_FREEBSD:
-			printf("UNIX - FreeBSD\n");
-			break;
-		case ELFOSABI_TRU64:
-			printf("UNIX - TRU64\n");
-			break;
-		case ELFOSABI_ARM:
-			printf("ARM\n");
-			break;
-		case ELFOSABI_STANDALONE:
-			printf("Standalone App\n");
 			break;
 		default:
 			printf("<unknown: %x>\n", ei_osabi);
@@ -134,7 +120,8 @@ void print_type(unsigned short e_type, int is_big_endian)
 	}
 }
 
-unsigned long read_entry(unsigned char *header, unsigned char ei_class, int is_big_endian)
+unsigned long read_entry(unsigned char *header, unsigned char ei_class,
+			 int is_big_endian)
 {
 	unsigned long entry = 0;
 	int i;
@@ -144,37 +131,79 @@ unsigned long read_entry(unsigned char *header, unsigned char ei_class, int is_b
 		unsigned char *p = header + 24;
 
 		if (is_big_endian)
+		{
 			for (i = 0; i < 4; i++)
 				entry = (entry << 8) + p[i];
+		}
 		else
+		{
 			for (i = 3; i >= 0; i--)
 				entry = (entry << 8) + p[i];
+		}
 	}
 	else if (ei_class == ELFCLASS64)
 	{
 		unsigned char *p = header + 24;
 
 		if (is_big_endian)
+		{
 			for (i = 0; i < 8; i++)
 				entry = (entry << 8) + p[i];
+		}
 		else
+		{
 			for (i = 7; i >= 0; i--)
 				entry = (entry << 8) + p[i];
+		}
 	}
 
 	return (entry);
 }
 
+void read_elf_header(int fd, unsigned char *header, unsigned char ei_class)
+{
+	ssize_t n_read;
+
+	if (lseek(fd, 0, SEEK_SET) == -1)
+		err_exit("Error: Can't seek file");
+
+	if (ei_class == ELFCLASS32)
+	{
+		n_read = read(fd, header, 52);
+		if (n_read != 52)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't read full ELF32 header\n");
+			close(fd);
+			exit(98);
+		}
+	}
+	else if (ei_class == ELFCLASS64)
+	{
+		n_read = read(fd, header, 64);
+		if (n_read != 64)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't read full ELF64 header\n");
+			close(fd);
+			exit(98);
+		}
+	}
+	else
+	{
+		dprintf(STDERR_FILENO, "Error: Invalid ELF class\n");
+		close(fd);
+		exit(98);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int fd;
-	ssize_t n_read;
-	unsigned char header[64];
-	unsigned char e_ident[EI_NIDENT];
+	unsigned char e_ident[EI_NIDENT], header[64];
 	unsigned char ei_class, ei_data, ei_version, ei_osabi, ei_abiversion;
 	unsigned short e_type;
 	int is_big_endian;
 	unsigned long entry_point;
+	ssize_t n_read;
 
 	if (argc != 2)
 	{
@@ -184,7 +213,7 @@ int main(int argc, char **argv)
 
 	fd = open(argv[1], O_RDONLY);
 	if (fd == -1)
-		ERR_EXIT("Error: Can't read file");
+		err_exit("Error: Can't read file");
 
 	n_read = read(fd, e_ident, EI_NIDENT);
 	if (n_read != EI_NIDENT)
@@ -208,38 +237,7 @@ int main(int argc, char **argv)
 	ei_osabi = e_ident[EI_OSABI];
 	ei_abiversion = e_ident[EI_ABIVERSION];
 
-	if (ei_class == ELFCLASS32)
-	{
-		if (lseek(fd, 0, SEEK_SET) == -1)
-			ERR_EXIT("Error: Can't seek file");
-
-		n_read = read(fd, header, 52);
-		if (n_read != 52)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read full ELF32 header\n");
-			close(fd);
-			exit(98);
-		}
-	}
-	else if (ei_class == ELFCLASS64)
-	{
-		if (lseek(fd, 0, SEEK_SET) == -1)
-			ERR_EXIT("Error: Can't seek file");
-
-		n_read = read(fd, header, 64);
-		if (n_read != 64)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read full ELF64 header\n");
-			close(fd);
-			exit(98);
-		}
-	}
-	else
-	{
-		dprintf(STDERR_FILENO, "Error: Invalid ELF class\n");
-		close(fd);
-		exit(98);
-	}
+	read_elf_header(fd, header, ei_class);
 
 	if (ei_data == ELFDATA2MSB)
 		is_big_endian = 1;
@@ -265,7 +263,6 @@ int main(int argc, char **argv)
 
 	entry_point = read_entry(header, ei_class, is_big_endian);
 	printf("  Entry point address:               ");
-
 	if (ei_class == ELFCLASS32)
 		printf("0x%x\n", (unsigned int)entry_point);
 	else
