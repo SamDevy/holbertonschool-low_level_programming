@@ -7,7 +7,8 @@
  * Return: 1 on success, -1 on failure
  *
  * Notes:
- * - Permissions: rw------- (0600). If file exists, truncate but don’t change perms.
+ * - Permissions: rw------- (0600). If file exists, truncate but don’t
+ *   change permissions.
  * - Returns -1 if filename is NULL, open/write fails, or any error occurs.
  */
 #include <unistd.h>
