@@ -67,19 +67,11 @@ int main(int argc, char *argv[])
 	{
 		bytes_written = write(fd_to, buffer, bytes_read);
 		if (bytes_written == -1 || bytes_written != bytes_read)
-		{
-			close_fd(fd_from);
-			close_fd(fd_to);
 			print_error(99, "Error: Can't write to %s\n", argv[2]);
-		}
 	}
 
 	if (bytes_read == -1)
-	{
-		close_fd(fd_from);
-		close_fd(fd_to);
 		print_error(98, "Error: Can't read from file %s\n", argv[1]);
-	}
 
 	close_fd(fd_from);
 	close_fd(fd_to);
