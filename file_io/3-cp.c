@@ -63,17 +63,17 @@ int main(int argc, char *argv[])
 		print_error(99, "Error: Can't write to %s\n", argv[2]);
 	}
 
-	bytes_read = read(fd_from, buffer, BUFFER_SIZE);
-	while (bytes_read > 0)
+	while (1)
 	{
+		bytes_read = read(fd_from, buffer, BUFFER_SIZE);
+		if (bytes_read == -1)
+			print_error(98, "Error: Can't read from file %s\n", argv[1]);
+		if (bytes_read == 0)
+			break;
 		bytes_written = write(fd_to, buffer, bytes_read);
 		if (bytes_written != bytes_read)
 			print_error(99, "Error: Can't write to %s\n", argv[2]);
-		bytes_read = read(fd_from, buffer, BUFFER_SIZE);
 	}
-
-	if (bytes_read == -1)
-		print_error(98, "Error: Can't read from file %s\n", argv[1]);
 
 	close_fd(fd_from);
 	close_fd(fd_to);
