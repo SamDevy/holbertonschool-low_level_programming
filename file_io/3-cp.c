@@ -4,30 +4,32 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#define BUFFER_SIZE 1024
+
 /**
- * error_exit - prints an error message and exits with given code
+ * error_exit - prints error message and exits
  * @code: exit code
- * @message: message to print
- * @file: name of the file related to the error
+ * @format: error message format
+ * @arg: argument to insert in format
  */
-void error_exit(int code, char *message, char *file)
+void error_exit(int code, const char *format, const char *arg)
 {
-	dprintf(STDERR_FILENO, message, file);
+	dprintf(STDERR_FILENO, format, arg);
 	exit(code);
 }
 
 /**
- * main - copies the content of a file to another file
- * @argc: number of arguments
- * @argv: array of arguments
+ * main - copies content of one file to another
+ * @argc: argument count
+ * @argv: argument vector
  *
- * Return: 0 on success, exits otherwise
+ * Return: 0 on success
  */
 int main(int argc, char *argv[])
 {
 	int fd_from, fd_to;
 	ssize_t r, w;
-	char buffer[1024];
+	char buffer[BUFFER_SIZE];
 
 	if (argc != 3)
 	{
@@ -46,10 +48,10 @@ int main(int argc, char *argv[])
 		error_exit(99, "Error: Can't write to %s\n", argv[2]);
 	}
 
-	while ((r = read(fd_from, buffer, 1024)) > 0)
+	while ((r = read(fd_from, buffer, BUFFER_SIZE)) > 0)
 	{
 		w = write(fd_to, buffer, r);
-		if (w != r)
+		if (w == -1 || w != r)
 		{
 			close(fd_from);
 			close(fd_to);
@@ -57,6 +59,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	/* ← هنا التحقق من خطأ read */
 	if (r == -1)
 	{
 		close(fd_from);
@@ -65,9 +68,10 @@ int main(int argc, char *argv[])
 	}
 
 	if (close(fd_from) == -1)
-		error_exit(100, "Error: Can't close fd %d\n", argv[1]);
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_from), exit(100);
+
 	if (close(fd_to) == -1)
-		error_exit(100, "Error: Can't close fd %d\n", argv[2]);
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_to), exit(100);
 
 	return (0);
 }
