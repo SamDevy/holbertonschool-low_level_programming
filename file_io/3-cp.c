@@ -7,8 +7,20 @@
 #define BUFFER_SIZE 1024
 
 /**
- * close_fd - close a file descriptor and handle error
- * @fd: file descriptor to close
+ * error_exit - print error message to stderr and exit
+ * @code: exit code
+ * @msg: message format
+ * @arg: argument (file name or fd)
+ */
+void error_exit(int code, const char *msg, const char *arg)
+{
+	dprintf(STDERR_FILENO, msg, arg);
+	exit(code);
+}
+
+/**
+ * close_fd - close file descriptor and handle error
+ * @fd: file descriptor
  */
 void close_fd(int fd)
 {
@@ -20,23 +32,11 @@ void close_fd(int fd)
 }
 
 /**
- * error_exit - print message and exit
- * @code: exit code
- * @format: printf-style format string
- * @arg: argument for format
- */
-void error_exit(int code, const char *format, const char *arg)
-{
-	dprintf(STDERR_FILENO, format, arg);
-	exit(code);
-}
-
-/**
  * main - copies the content of a file to another file
  * @argc: argument count
  * @argv: argument vector
  *
- * Return: 0 on success
+ * Return: 0 on success, exits otherwise
  */
 int main(int argc, char *argv[])
 {
@@ -61,15 +61,17 @@ int main(int argc, char *argv[])
 		error_exit(99, "Error: Can't write to %s\n", argv[2]);
 	}
 
-	/* اقرأ في حلقة حتى نهاية الملف أو حدوث خطأ */
-	while ((r = read(fd_from, buffer, BUFFER_SIZE)) != 0)
+	while (1)
 	{
+		r = read(fd_from, buffer, BUFFER_SIZE);
 		if (r == -1)
 		{
 			close_fd(fd_from);
 			close_fd(fd_to);
 			error_exit(98, "Error: Can't read from file %s\n", argv[1]);
 		}
+		if (r == 0)
+			break;
 
 		w = write(fd_to, buffer, r);
 		if (w == -1 || w != r)
