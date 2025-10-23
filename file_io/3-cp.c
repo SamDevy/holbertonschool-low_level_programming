@@ -7,10 +7,10 @@
 #define BUFFER_SIZE 1024
 
 /**
- * error_exit - prints error message and exits
+ * error_exit - print error message and exit
  * @code: exit code
  * @format: error message format
- * @arg: argument to insert in format
+ * @arg: argument (file name or fd)
  */
 void error_exit(int code, const char *format, const char *arg)
 {
@@ -19,10 +19,9 @@ void error_exit(int code, const char *format, const char *arg)
 }
 
 /**
- * main - copies content of one file to another
+ * main - copies the content of a file to another file
  * @argc: argument count
  * @argv: argument vector
- *
  * Return: 0 on success
  */
 int main(int argc, char *argv[])
@@ -48,8 +47,19 @@ int main(int argc, char *argv[])
 		error_exit(99, "Error: Can't write to %s\n", argv[2]);
 	}
 
-	while ((r = read(fd_from, buffer, BUFFER_SIZE)) > 0)
+	/* اقرأ حتى نهاية الملف أو حدوث خطأ */
+	while (1)
 	{
+		r = read(fd_from, buffer, BUFFER_SIZE);
+		if (r == -1)
+		{
+			close(fd_from);
+			close(fd_to);
+			error_exit(98, "Error: Can't read from file %s\n", argv[1]);
+		}
+		if (r == 0) /* انتهت القراءة */
+			break;
+
 		w = write(fd_to, buffer, r);
 		if (w == -1 || w != r)
 		{
@@ -59,19 +69,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	/* ← هنا التحقق من خطأ read */
-	if (r == -1)
-	{
-		close(fd_from);
-		close(fd_to);
-		error_exit(98, "Error: Can't read from file %s\n", argv[1]);
-	}
-
 	if (close(fd_from) == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_from), exit(100);
-
+	{
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_from);
+		exit(100);
+	}
 	if (close(fd_to) == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_to), exit(100);
+	{
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_to);
+		exit(100);
+	}
 
 	return (0);
 }
