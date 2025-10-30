@@ -1,26 +1,17 @@
-/* 0-hash_table_create.c */
 #include <stdlib.h>
 #include "hash_tables.h"
 
 /**
- * hash_table_create - Create a hash table with given size
- * @size: Number of buckets in the hash table
+ * hash_table_create - Creates a hash table.
+ * @size: The size of the array (number of buckets).
  *
- * Return:
- * Pointer to a newly created hash_table_t on success,
- * NULL on error or if size is 0.
- *
- * Why:
- * - Allocate the table struct.
- * - Allocate the bucket array.
- * - Initialize all buckets to NULL (using calloc).
- * - Validate inputs and allocations.
+ * Return: A pointer to the newly created hash table,
+ * or NULL if something went wrong.
  */
 hash_table_t *hash_table_create(unsigned long int size)
 {
 	hash_table_t *ht;
 
-	/* Size 0 is invalid; avoid creating unusable table */
 	if (size == 0)
 		return (NULL);
 
@@ -29,8 +20,6 @@ hash_table_t *hash_table_create(unsigned long int size)
 		return (NULL);
 
 	ht->size = size;
-
-	/* Use calloc to zero-initialize bucket pointers to NULL */
 	ht->array = calloc(size, sizeof(hash_node_t *));
 	if (ht->array == NULL)
 	{
