@@ -1,81 +1,91 @@
-#include <stdlib.h>
-#include <string.h>
 #include "hash_tables.h"
 
-/* Helper: update value of existing node */
-static int update_node(hash_node_t *node, const char *value)
+/**
+ * create_node - creates a new hash node
+ * @key: key string
+ * @value: value string
+ *
+ * Return: pointer to new node, or NULL on failure
+ */
+hash_node_t *create_node(const char *key, const char *value)
 {
-	char *new_value;
+    hash_node_t *node;
 
-	new_value = strdup(value);
-	if (!new_value)
-		return (0);
+    node = malloc(sizeof(hash_node_t));
+    if (!node)
+        return (NULL);
 
-	free(node->value);
-	node->value = new_value;
-	return (1);
-}
+    node->key = strdup(key);
+    if (!node->key)
+    {
+        free(node);
+        return (NULL);
+    }
 
-/* Helper: create a new hash node */
-static hash_node_t *create_node(const char *key, const char *value)
-{
-	hash_node_t *new_node;
+    node->value = strdup(value);
+    if (!node->value)
+    {
+        free(node->key);
+        free(node);
+        return (NULL);
+    }
 
-	new_node = malloc(sizeof(hash_node_t));
-	if (!new_node)
-		return (NULL);
-
-	new_node->key = strdup(key);
-	if (!new_node->key)
-	{
-		free(new_node);
-		return (NULL);
-	}
-
-	new_node->value = strdup(value);
-	if (!new_node->value)
-	{
-		free(new_node->key);
-		free(new_node);
-		return (NULL);
-	}
-
-	new_node->next = NULL;
-	return (new_node);
+    node->next = NULL;
+    return (node);
 }
 
 /**
- * hash_table_set - Adds or updates an element in a hash table
- * @ht: Pointer to the hash table
- * @key: The key (cannot be an empty string)
- * @value: The value associated with the key
+ * update_node - updates the value of an existing node
+ * @node: node to update
+ * @value: new value
  *
- * Return: 1 if success, 0 otherwise
+ * Return: 1 on success, 0 on failure
+ */
+int update_node(hash_node_t *node, const char *value)
+{
+    char *new_value;
+
+    new_value = strdup(value);
+    if (!new_value)
+        return (0);
+
+    free(node->value);
+    node->value = new_value;
+    return (1);
+}
+
+/**
+ * hash_table_set - adds or updates an element in a hash table
+ * @ht: pointer to the hash table
+ * @key: key string (cannot be empty)
+ * @value: value associated with the key (will be duplicated)
+ *
+ * Return: 1 on success, 0 on failure
  */
 int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 {
-	unsigned long int index;
-	hash_node_t *temp, *new_node;
+    unsigned long int index;
+    hash_node_t *node, *current;
 
-	if (!ht || !key || !*key || !value)
-		return (0);
+    if (!ht || !key || !*key || !value)
+        return (0);
 
-	index = key_index((const unsigned char *)key, ht->size);
-	temp = ht->array[index];
+    index = key_index((const unsigned char *)key, ht->size);
+    current = ht->array[index];
 
-	while (temp)
-	{
-		if (strcmp(temp->key, key) == 0)
-			return (update_node(temp, value));
-		temp = temp->next;
-	}
+    while (current)
+    {
+        if (strcmp(current->key, key) == 0)
+            return (update_node(current, value));
+        current = current->next;
+    }
 
-	new_node = create_node(key, value);
-	if (!new_node)
-		return (0);
+    node = create_node(key, value);
+    if (!node)
+        return (0);
 
-	new_node->next = ht->array[index];
-	ht->array[index] = new_node;
+    node->next = ht->array[index];
+    ht->array[index] = node;
 
-	return (1);
+    return (1);
 }
