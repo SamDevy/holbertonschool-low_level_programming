@@ -4,12 +4,7 @@
 
 #include <stdlib.h>
 
-/**
- * struct hash_node_s - Node of a hash table
- * @key: Key string (unique in table)
- * @value: Value for the key
- * @next: Next node in the chain
- */
+/* Node of a hash table */
 typedef struct hash_node_s
 {
 	char *key;
@@ -17,18 +12,13 @@ typedef struct hash_node_s
 	struct hash_node_s *next;
 } hash_node_t;
 
-/**
- * struct hash_table_s - Hash table data structure
- * @size: Size of the array
- * @array: Array of bucket head pointers
- */
+/* Hash table structure */
 typedef struct hash_table_s
 {
 	unsigned long int size;
 	hash_node_t **array;
 } hash_table_t;
 
-/* API */
 hash_table_t *hash_table_create(unsigned long int size);
 
 #endif /* HASH_TABLES_H */
