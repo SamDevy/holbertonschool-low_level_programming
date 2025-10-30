@@ -1,6 +1,6 @@
 /* hash_tables.h */
-#ifndef HOLBERTON_HASH_TABLES_H
-#define HOLBERTON_HASH_TABLES_H
+#ifndef HASH_TABLES_H
+#define HASH_TABLES_H
 
 #include <stdlib.h>
 
@@ -28,6 +28,7 @@ typedef struct hash_table_s
 	hash_node_t **array;
 } hash_table_t;
 
+/* Create a hash table with the given size */
 hash_table_t *hash_table_create(unsigned long int size);
 
-#endif /* HOLBERTON_HASH_TABLES_H */
+#endif /* HASH_TABLES_H */
