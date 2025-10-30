@@ -6,7 +6,7 @@
 
 /**
  * struct hash_node_s - Node of a hash table
- * @key: Key string (unique in the table)
+ * @key: Key string (unique in table)
  * @value: Value for the key
  * @next: Next node in the chain
  */
@@ -28,7 +28,7 @@ typedef struct hash_table_s
 	hash_node_t **array;
 } hash_table_t;
 
-/* Create a hash table with the given size */
+/* API */
 hash_table_t *hash_table_create(unsigned long int size);
 
 #endif /* HASH_TABLES_H */
