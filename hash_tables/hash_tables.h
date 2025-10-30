@@ -1,10 +1,15 @@
 /* hash_tables.h */
-#ifndef HOLBERTON_HASH_TABLES_H
-#define HOLBERTON_HASH_TABLES_H
+#ifndef HASH_TABLES_H
+#define HASH_TABLES_H
 
 #include <stdlib.h>
 
-/* Hash table node structure */
+/**
+ * struct hash_node_s - Node of a hash table
+ * @key: Key string (unique in table)
+ * @value: Value for the key
+ * @next: Next node in the chain
+ */
 typedef struct hash_node_s
 {
 	char *key;
@@ -12,7 +17,11 @@ typedef struct hash_node_s
 	struct hash_node_s *next;
 } hash_node_t;
 
-/* Hash table container structure */
+/**
+ * struct hash_table_s - Hash table data structure
+ * @size: Size of the array
+ * @array: Array of bucket head pointers
+ */
 typedef struct hash_table_s
 {
 	unsigned long int size;
@@ -22,4 +31,4 @@ typedef struct hash_table_s
 /* API */
 hash_table_t *hash_table_create(unsigned long int size);
 
-#endif /* HOLBERTON_HASH_TABLES_H */
+#endif /* HASH_TABLES_H */
