@@ -1,35 +1,93 @@
-#ifndef HASH_TABLES_H
-#define HASH_TABLES_H
-
+#include "hash_tables.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
- * struct hash_node_s - Node of a hash table
- * @key: Key string (unique in table)
- * @value: Value for the key
- * @next: Next node in the chain
+ * create_node - creates a new hash node
+ * @key: key string
+ * @value: value string
+ *
+ * Return: pointer to new node, or NULL on failure
  */
-typedef struct hash_node_s
+hash_node_t *create_node(const char *key, const char *value)
 {
-	char *key;
-	char *value;
-	struct hash_node_s *next;
-} hash_node_t;
+    hash_node_t *node;
+
+    node = malloc(sizeof(hash_node_t));
+    if (!node)
+        return (NULL);
+
+    node->key = strdup(key);
+    if (!node->key)
+    {
+        free(node);
+        return (NULL);
+    }
+
+    node->value = strdup(value);
+    if (!node->value)
+    {
+        free(node->key);
+        free(node);
+        return (NULL);
+    }
+
+    node->next = NULL;
+    return (node);
+}
 
 /**
- * struct hash_table_s - Hash table data structure
- * @size: Size of the array
- * @array: Array of bucket head pointers
+ * update_node - updates value of existing node
+ * @node: node to update
+ * @value: new value
+ *
+ * Return: 1 on success, 0 on failure
  */
-typedef struct hash_table_s
+int update_node(hash_node_t *node, const char *value)
 {
-	unsigned long int size;
-	hash_node_t **array;
-} hash_table_t;
+    char *new_value;
 
-hash_table_t *hash_table_create(unsigned long int size);
-unsigned long int hash_djb2(const unsigned char *str);
-unsigned long int key_index(const unsigned char *key, unsigned long int size);
-int hash_table_set(hash_table_t *ht, const char *key, const char *value);
+    new_value = strdup(value);
+    if (!new_value)
+        return (0);
 
-#endif /* HASH_TABLES_H */
+    free(node->value);
+    node->value = new_value;
+    return (1);
+}
+
+/**
+ * hash_table_set - adds or updates an element in a hash table
+ * @ht: pointer to the hash table
+ * @key: key string (cannot be empty)
+ * @value: value associated with the key (will be duplicated)
+ *
+ * Return: 1 on success, 0 on failure
+ */
+int hash_table_set(hash_table_t *ht, const char *key, const char *value)
+{
+    unsigned long int index;
+    hash_node_t *node, *current;
+
+    if (!ht || !key || !*key || !value)
+        return (0);
+
+    index = key_index((const unsigned char *)key, ht->size);
+    current = ht->array[index];
+
+    while (current)
+    {
+        if (strcmp(current->key, key) == 0)
+            return (update_node(current, value));
+        current = current->next;
+    }
+
+    node = create_node(key, value);
+    if (!node)
+        return (0);
+
+    node->next = ht->array[index];
+    ht->array[index] = node;
+
+    return (1);
+}
