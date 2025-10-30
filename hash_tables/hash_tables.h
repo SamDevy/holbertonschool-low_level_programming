@@ -6,9 +6,9 @@
 
 /**
  * struct hash_node_s - Node of a hash table
- * @key: The key, string (unique in the table)
- * @value: The value corresponding to a key
- * @next: Pointer to the next node (for chaining)
+ * @key: Key string (unique in the table)
+ * @value: Value for the key
+ * @next: Next node in the chain
  */
 typedef struct hash_node_s
 {
@@ -19,8 +19,8 @@ typedef struct hash_node_s
 
 /**
  * struct hash_table_s - Hash table data structure
- * @size: The size of the array
- * @array: Array of pointers to bucket heads
+ * @size: Size of the array
+ * @array: Array of bucket head pointers
  */
 typedef struct hash_table_s
 {
@@ -28,7 +28,6 @@ typedef struct hash_table_s
 	hash_node_t **array;
 } hash_table_t;
 
-/* Create a hash table with a given size */
 hash_table_t *hash_table_create(unsigned long int size);
 
 #endif /* HASH_TABLES_H */
